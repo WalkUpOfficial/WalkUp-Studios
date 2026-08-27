@@ -159,7 +159,7 @@ class main:
         tk.Button(self.root, text='    -    ', command=_back, font=('Microsoft YaHei', 18, 'bold')).place(x=260, y=130)
         tk.Button(self.root, text='    *    ', command=_ride, font=('Microsoft YaHei', 18, 'bold')).place(x=380, y=130)
         tk.Button(self.root, text='    /    ', command=_besides, font=('Microsoft YaHei', 18, 'bold')).place(x=500, y=130)
-        tk.Button(self.root, text='    0    ', command=num0, font=('Microsoft YaHei', 18, 'bold')).place(x=500, y=700)
+        tk.Button(self.root, text='    0    ', command=num0, font=('Microsoft YaHei', 18, 'bold')).place(x=100, y=300)
         
         # Display
         self.root.mainloop()
