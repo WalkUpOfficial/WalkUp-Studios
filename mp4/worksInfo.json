@@ -1,0 +1,104 @@
+{
+    "worksInfos": [
+        {
+            "draftId": "F6DF2E9C-49C5-450E-B846-0831FCC4F05B",
+            "duration": 63418000,
+            "filePath": "E:/Temp/202608311623.mp4",
+            "id": "7785F68B-7CBF-4404-92B4-4344A7E57BE3",
+            "imageRatio": 1.5942028760910034,
+            "modifyTime": 1788165773549,
+            "name": "202608311623.mp4",
+            "status": 0
+        },
+        {
+            "draftId": "4C529DD5-2509-442D-A059-AE2A522B3667",
+            "duration": 1035000,
+            "filePath": "E:/Temp/202608301610.mp4",
+            "id": "F8A34CC7-FBF4-4E18-8618-D84684DB865F",
+            "imageRatio": 1.7777777910232544,
+            "modifyTime": 1788077613053,
+            "name": "202608301610.mp4",
+            "status": 0
+        },
+        {
+            "draftId": "9EBE81C8-57FC-4BFD-9996-4B5E333F197D",
+            "duration": 835779000,
+            "filePath": "E:/Temp/202608181605.mp4",
+            "id": "40FB0407-B761-47AD-83E1-8158B3037D3D",
+            "imageRatio": 1.5990338325500488,
+            "modifyTime": 1787041276757,
+            "name": "202608181605.mp4",
+            "status": 0
+        },
+        {
+            "draftId": "BF8DC2E1-3696-4039-9275-175C0EA5B848",
+            "duration": 906098000,
+            "filePath": "E:/Temp/202608181558.mp4",
+            "id": "2D2D5A5E-7CED-432F-BA58-4842CCF6AB47",
+            "imageRatio": 1.5990338325500488,
+            "modifyTime": 1787040302335,
+            "name": "202608181558.mp4",
+            "status": 0
+        },
+        {
+            "draftId": "53D6AB5B-ABAC-4C62-8309-AA0D3300C376",
+            "duration": 887839000,
+            "filePath": "E:/Temp/202608171625.mp4",
+            "id": "36BDF109-D064-4135-AFFD-3B7A8F28D2B9",
+            "imageRatio": 1.5990338325500488,
+            "modifyTime": 1786955731944,
+            "name": "202608171625.mp4",
+            "status": 0
+        },
+        {
+            "draftId": "BF0B81B3-18A2-4C73-8F61-3F41A04DC3C3",
+            "duration": 907108000,
+            "filePath": "E:/Temp/202608171603.mp4",
+            "id": "E27B8A99-ACA5-4325-80B7-8BABBAB6F093",
+            "imageRatio": 1.5990338325500488,
+            "modifyTime": 1786954873207,
+            "name": "202608171603.mp4",
+            "status": 0
+        },
+        {
+            "draftId": "6CC5F35E-A0FE-459B-B543-1A3E689B8115",
+            "duration": 472585000,
+            "filePath": "E:/Temp/202608141458.mp4",
+            "id": "31AE7B24-FDF6-4D03-8C30-22DD72658F7B",
+            "imageRatio": 1.5990338325500488,
+            "modifyTime": 1786691013495,
+            "name": "202608141458.mp4",
+            "status": 0
+        },
+        {
+            "draftId": "2B363ABB-3B18-47E1-8635-E7D78AB3A631",
+            "duration": 822720000,
+            "filePath": "E:/Temp/202608121358.mp4",
+            "id": "195F4533-3141-41D3-B8BB-355EAB851314",
+            "imageRatio": 1.5990338325500488,
+            "modifyTime": 1786529303566,
+            "name": "202608121358.mp4",
+            "status": 0
+        },
+        {
+            "draftId": "79F3EC00-BAEF-46B3-B7F3-3821B8CFF323",
+            "duration": 1024424000,
+            "filePath": "E:/Temp/202608121228.mp4",
+            "id": "E06776C4-7A47-4D54-AA4D-31AD26CD0942",
+            "imageRatio": 1.5990338325500488,
+            "modifyTime": 1786511463059,
+            "name": "202608121228.mp4",
+            "status": 0
+        },
+        {
+            "draftId": "534F6363-9880-4A6E-A451-B75C20600D42",
+            "duration": 865553000,
+            "filePath": "E:/Temp/202608112219.mp4",
+            "id": "0CB03DF9-C51A-4DDC-95AA-E4E40ECA3540",
+            "imageRatio": 1.7777777910232544,
+            "modifyTime": 1786458590214,
+            "name": "202608112219.mp4",
+            "status": 0
+        }
+    ]
+}
