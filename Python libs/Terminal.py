@@ -1,21 +1,22 @@
 import curses
 import atexit
 import time
+import sys
+import os
+
+if sys.platform == 'win32':
+    os.system('') 
 
 _stdscr = curses.initscr()
 atexit.register(curses.endwin)
 _line_lengths = {}
-
-
 class _init_:
     pass
-
 
 _init_ = _init_()
 
 lines = 0
 cleanf = {}
-
 
 class output:
     def __init__(self, text, y=None, x=0, end=True):
@@ -39,7 +40,6 @@ class output:
             _stdscr.move(max_y - 1, 0)
             _stdscr.refresh()
 
-
 class line:
     def __init__(self, y=None, x=0):
         if y is None:
@@ -48,7 +48,6 @@ class line:
         _stdscr.clrtoeol()
         _stdscr.addstr('\n')
         _stdscr.refresh()
-
 
 class clean:
     def __init__(self, line=None):
@@ -62,7 +61,6 @@ class clean:
         _stdscr.clrtoeol()
         _stdscr.refresh()
         cleanf[line] = 0
-
 
 def put(prompt='', y=None, x=0, max_len=50):
     global lines, cleanf
@@ -78,7 +76,6 @@ def put(prompt='', y=None, x=0, max_len=50):
     curses.noecho()
     return result.decode('utf-8')
 
-
 class outs:
     def __init__(self, text, y=None, x=0, end=True):
         max_y, max_x = _stdscr.getmaxyx()
@@ -89,7 +86,7 @@ class outs:
             y, _ = _stdscr.getyx()
         y = max(0, min(y, max_y - 1))
         x = max(0, min(x, max_x - 1))
-
+        
         _stdscr.move(y, x)
         text_str = str(text)
         for i in text_str:
@@ -110,7 +107,6 @@ class outs:
         _stdscr.clrtoeol()
         _stdscr.refresh()
 
-
 class cleans:
     def __init__(self, line=None):
         sy, _ = _stdscr.getyx()
@@ -129,8 +125,6 @@ class cleans:
         _stdscr.move(y, 0)
         _stdscr.clrtoeol()
         _stdscr.refresh()
-
-
 class move:
     def __init__(self, y, x=None):
         max_y, max_x = _stdscr.getmaxyx()

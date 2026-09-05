@@ -153,19 +153,18 @@ SPECIAL_KEYS = {
     'f12': win32con.VK_F12,
 }
 
-class computer:
-    def shutdown():
-        os.system("shutdown /s /t 1")
+def shutdown():
+    os.system("shutdown /s /t 1")
     
-    def Get_Administrtor_permissions():
-        if not ctypes.windll.shell32.IsUserAnAdmin():
-            if sys.argv[0].endswith('.pyw'):
-                exe = sys.executable.replace("python.exe", "pythonw.exe")
-            else:
-                exe = sys.executable
-            params = " ".join(f'"{arg}"' for arg in sys.argv)
-            ctypes.windll.shell32.ShellExecuteW(None, "runas", exe, params, None, 1)
-            sys.exit(0)
+def Get_Administrtor_permissions():
+    if not ctypes.windll.shell32.IsUserAnAdmin():
+        if sys.argv[0].endswith('.pyw'):
+            exe = sys.executable.replace("python.exe", "pythonw.exe")
+        else:
+            exe = sys.executable
+        params = " ".join(f'"{arg}"' for arg in sys.argv)
+        ctypes.windll.shell32.ShellExecuteW(None, "runas", exe, params, None, 1)
+        sys.exit(0)
 
 def Adaptation_DPI_Hight():
     import ctypes
