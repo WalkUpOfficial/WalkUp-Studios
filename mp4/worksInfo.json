@@ -1,6 +1,56 @@
 {
     "worksInfos": [
         {
+            "draftId": "6309F72C-B7BA-47D0-973C-3BF6BA161EF8",
+            "duration": 799509000,
+            "filePath": "E:/Temp/202609061410.mp4",
+            "id": "E83A1C59-E74B-4F16-BA27-47155E4FD5B8",
+            "imageRatio": 1.7777777910232544,
+            "modifyTime": 1788675083613,
+            "name": "202609061410.mp4",
+            "status": 0
+        },
+        {
+            "draftId": "1DCD801B-F332-43B9-9D7B-7A706E114C8D",
+            "duration": 799509000,
+            "filePath": "E:/Temp/202609061407.mp4",
+            "id": "DA04805F-4F47-4C11-9291-DC9E35F1B126",
+            "imageRatio": 1.7777777910232544,
+            "modifyTime": 1788674965881,
+            "name": "202609061407.mp4",
+            "status": 0
+        },
+        {
+            "draftId": "F86857A1-1F9F-45A7-AB37-3E788651EBDD",
+            "duration": 799509000,
+            "filePath": "E:/Temp/202609061405.mp4",
+            "id": "91BDD3D8-7874-4D82-8BA2-9739DB7630A9",
+            "imageRatio": 1.7777777910232544,
+            "modifyTime": 1788674803823,
+            "name": "202609061405.mp4",
+            "status": 0
+        },
+        {
+            "draftId": "E8001D95-96C8-4EA7-98AE-A25D563DAF26",
+            "duration": 799500000,
+            "filePath": "E:/Temp/202609061312.mp4",
+            "id": "D4FA46D1-74D4-440B-B34E-0AEEB17495E5",
+            "imageRatio": 1.7777777910232544,
+            "modifyTime": 1788674030028,
+            "name": "202609061312.mp4",
+            "status": 0
+        },
+        {
+            "draftId": "85AB5219-79AF-4110-B65C-9AE1156AB5E2",
+            "duration": 1951337000,
+            "filePath": "E:/Temp/202609061108.mp4",
+            "id": "D74E26C8-8D05-4F13-A792-1DD3C3F79895",
+            "imageRatio": 1.5990338325500488,
+            "modifyTime": 1788664882586,
+            "name": "202609061108.mp4",
+            "status": 0
+        },
+        {
             "draftId": "F6DF2E9C-49C5-450E-B846-0831FCC4F05B",
             "duration": 63418000,
             "filePath": "E:/Temp/202608311623.mp4",
