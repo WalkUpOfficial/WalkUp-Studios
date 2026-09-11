@@ -1,5 +1,0 @@
-n = int(input())
-if 0 < n < 20: print('L1')
-elif 20 < n < 50: print('L2')
-elif 50 < n < 100: print('L3')
-else: print('L4')
