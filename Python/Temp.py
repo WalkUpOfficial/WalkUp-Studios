@@ -1,1 +1,1 @@
-import tkinter as tk
+print('sss'.isalpha())
