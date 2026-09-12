@@ -26,6 +26,7 @@ import time as tm
 import re
 import hashlib
 import sys
+from ctypes import windll, byref, c_int
 
 voices = {
         '女-普通': 'zh-CN-XiaoxiaoNeural',
@@ -277,6 +278,24 @@ class keys:
 
 
 class window:
+    def EXIT_SYSTEM(master, rounded_corner=True):
+        DWMWA_WINDOW_CORNER_PREFERENCE = 33
+        if rounded_corner == True:
+            DWMWCP_ROUND = 2
+        else:
+            DWMWCP_ROUND = 1
+
+        try:
+            val = c_int(DWMWCP_ROUND)
+            windll.dwmapi.DwmSetWindowAttribute(
+                master.winfo_id(),
+                DWMWA_WINDOW_CORNER_PREFERENCE,
+                byref(val),
+                ctypes.sizeof(val)
+            )
+        except Exception:
+            pass
+
     def password(one=True, Error=['Error', 'Warning to much.\n    Try Faild.'], bind='Enter', cnt=0, title='Enter the password', show="·", sure="Next", font=('Arial', 14), width=10, text="Please enter the password :", geometry="350x150", password='123', yes=['Success', '        Correct password ! 😊        '], no=['Error', 'Incorrect password. Please try again!']):
         result = None
         def check_password(event=None, password=password, title=title, yes=yes, no=no):
