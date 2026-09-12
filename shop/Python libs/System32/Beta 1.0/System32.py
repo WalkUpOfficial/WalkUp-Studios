@@ -64,6 +64,21 @@ voices = {
         '男-四川方言': 'zh-CN-sichuan-YunxiNeural',
     }
 
+DWMWA_WINDOW_CORNER_PREFERENCE = 33
+DWMWCP_DONOTROUND = 1
+DWMWCP_ROUND = 2
+DWMWCP_ROUNDSMALL = 3
+WS_CAPTION = 0x00C00000
+GWL_STYLE = -16
+
+class MARGINS(Structure):
+    _fields_ = [
+        ("cxLeftWidth", c_int),
+        ("cxRightWidth", c_int),
+        ("cyTopHeight", c_int),
+        ("cyBottomHeight", c_int),
+    ]
+
 class MOUSEINPUT(Structure):
     _fields_ = [
         ("dx", c_long),
@@ -278,24 +293,6 @@ class keys:
 
 
 class window:
-    def EXIT_SYSTEM(master, rounded_corner=True):
-        DWMWA_WINDOW_CORNER_PREFERENCE = 33
-        if rounded_corner == True:
-            DWMWCP_ROUND = 2
-        else:
-            DWMWCP_ROUND = 1
-
-        try:
-            val = c_int(DWMWCP_ROUND)
-            windll.dwmapi.DwmSetWindowAttribute(
-                master.winfo_id(),
-                DWMWA_WINDOW_CORNER_PREFERENCE,
-                byref(val),
-                ctypes.sizeof(val)
-            )
-        except Exception:
-            pass
-
     def password(one=True, Error=['Error', 'Warning to much.\n    Try Faild.'], bind='Enter', cnt=0, title='Enter the password', show="·", sure="Next", font=('Arial', 14), width=10, text="Please enter the password :", geometry="350x150", password='123', yes=['Success', '        Correct password ! 😊        '], no=['Error', 'Incorrect password. Please try again!']):
         result = None
         def check_password(event=None, password=password, title=title, yes=yes, no=no):
