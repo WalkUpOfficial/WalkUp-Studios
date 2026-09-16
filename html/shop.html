@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WalkUp - 热门软件</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 顶部炫彩横幅 */
+        .welcome-banner {
+            width: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #667eea);
+            background-size: 300% 100%;
+            animation: gradientShift 3s ease infinite;
+            padding: 15px 0;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: white;
+            position: relative; 
+        }
+
+        /* 渐变流动动画 */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 标题样式：独立定位在文本框正上方 */
+        .mc-title {
+            position: absolute;
+            left: 20px;
+            bottom: -70px; /* 刚好卡在文本框的上边缘 */
+            color: #667eea;
+            font-size: 1.4em; /* 标题字体调小了 */
+            font-weight: bold;
+            padding: 0 105px; /* 左右留点空隙，不会贴边 */
+            z-index: 11; /* 确保标题在文本框上层 */
+        }
+
+        /* Minecraft 文本框样式 */
+        .mc-card {
+            position: absolute;
+            left: 20px;
+            bottom: -140px; 
+            background: rgba(255, 255, 255, 0.95); 
+            color: #333;
+            padding: 40px 40px; 
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            z-index: 10;
+            width: 33.33%;
+            min-width: 250px;
+            cursor: default; 
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        /* 鼠标放上去的悬停效果 */
+        .mc-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        /* 文本框内的副标题 */
+        .mc-card p {
+            font-size: 0.9em; 
+            color: #777;      
+        }
+
+        /* 页面基础样式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部炫彩横幅 -->
+    <div class="welcome-banner">
+        👋 欢迎访问 WalkUp 官方网站
+        
+        <!-- 独立出来的标题，紧贴文本框正上方 -->
+        <div class="mc-title">Minecraft</div>
+        
+        <!-- 文本框 -->
+        <div class="mc-card">
+            <p>含有特制版本</p>
+        </div>
+    </div>
+</body>
+</html>

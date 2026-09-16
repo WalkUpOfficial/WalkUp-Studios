@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WalkUp - 开发团队</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .welcome-banner {
+            width: 100%;
+            background: linear-gradient(90deg, #667eea, #8713fd, #f093fb, #667eea);
+            background-size: 300% 100%;
+            animation: gradientShift 3s ease infinite;
+            padding: 15px 0;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: white;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #f5f7fa;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .card p {
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border: none;
+            font-size: 1em;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 下拉显示区域 */
+        .join-info {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, padding 0.5s ease;
+            background: #f8f9ff;
+            border-radius: 12px;
+            margin-top: 0;
+        }
+
+        .join-info.show {
+            max-height: 250px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .join-info p {
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .qq-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            user-select: all;
+        }
+
+        .qq-number:hover {
+            transform: scale(1.05);
+            background: #764ba2;
+        }
+
+        .qq-number:active {
+            transform: scale(0.95);
+        }
+
+        /* 复制成功提示 */
+        .copy-tip {
+            color: #52c41a;
+            font-size: 0.9em;
+            margin-top: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .copy-tip.show {
+            opacity: 1;
+        }
+
+        /* 新增：新页面的居中布局样式 */
+        .center-box {
+            text-align: center; /* 让内部的文字和按钮水平居中 */
+            padding: 40px 20px; /* 增加一些内边距让卡片更好看 */
+        }
+        .center-sentence {
+            font-size: 1.2em;
+            color: #333;
+
+            margin-bottom: 25px; /* 句子和按钮之间的距离 */
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-banner">
+        👋 欢迎访问 WalkUp 官方网站
+    </div>
+
+    <div class="container">
+        <h1>🚀 WalkUp</h1>
+        <p class="tagline">欢迎加入 WalkUp 开发团队</p>
+
+        <div class="card">
+            <h2>关于我们</h2>
+            <p>WalkUp 是一个专注于方便的开发团队。</p>
+            <p>无论你是 Python 学者、C++ 学者还是 Java 学者, 都欢迎加入我们的 Q 群团队！</p>
+            
+            <button class="btn" onclick="toggleJoin()">加入我们</button>
+            
+            <div class="join-info" id="joinInfo">
+                <p>请确认您有 QQ 账号</p>
+                <p>在 QQ 里加入群聊，点击复制群号：</p>
+                <span class="qq-number" onclick="copyQQ()" id="qqNumber">1092184461</span>
+                <p class="copy-tip" id="copyTip">✅ 已复制到剪贴板！</p>
+            </div>
+        </div>
+
+        <!-- 新增的页面部分 -->
+        <div class="card center-box">
+            <p class="center-sentence">我们希望方便每一个人，补上生活的不足。但能力有限，只能为 Windows 用户做便利。</p>
+            <a href="shop.html" class="btn" style="text-decoration: none;">看看热门软件</a>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleJoin() {
+            const info = document.getElementById('joinInfo');
+            info.classList.toggle('show');
+        }
+
+        function copyQQ() {
+            const qqNumber = document.getElementById('qqNumber').innerText;
+            
+            // 复制到剪贴板
+            navigator.clipboard.writeText(qqNumber).then(function() {
+                // 显示提示
+                const tip = document.getElementById('copyTip');
+                tip.classList.add('show');
+                
+                // 2秒后隐藏提示
+                setTimeout(function() {
+                    tip.classList.remove('show');
+                }, 2000);
+            }).catch(function(err) {
+                // 如果复制失败，自动选中文字让用户手动复制
+                const qqElement = document.getElementById('qqNumber');
+                const range = document.createRange();
+                range.selectNode(qqElement);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                
+                alert('请手动复制群号：' + qqNumber);
+            });
+        }
+    </script>
+</body>
+</html>
