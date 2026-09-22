@@ -2,18 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "C++ g++ 启动",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${fileDirname}",
-            "environment": [],
-            "externalConsole": true
-        },
-        {
-            "name": "Python 调试程序: 当前文件",
+            "name": "Python 运行程序",
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
