@@ -4,8 +4,8 @@ import WalkUpPyAudio
 
 print('Starting Main...')
 
-def say(path):
-    System32.mpv.mp3.music(path=os.path.dirname(System32.file.Self())+r'\volumes\\'+path)
+def say(path): System32.mpv.mp3.music(path=os.path.dirname(System32.file.Self())+r'\volumes\\'+path)
+def out(text): System32.vol.say(text=f'系统报告：{text}')
 
 homophonics = {
     '关闭一遍':'关闭音量', 
@@ -30,6 +30,22 @@ def compile(target=None):
     elif '开启声音' in target or '取消静音' in target or '开启音量' in target:
         System32.vol.mute(False)
         say('open.mp3')
+        
+    if '清理' in target:
+        files = 0
+        for i in System32.file.listdir(System32.file.user()+r'\AppData\Local\Temp'):
+            try:
+                System32.file.delete(i)
+                files += 1
+            except: pass
+        for i in System32.file.listdir(r'C:\Windows\Temp'):
+            try:
+                System32.file.delete(i)
+                files += 1
+            except: pass
+        say('clear_temp.mp3')
+        System32.time.sleep(2)
+        out('已清理'+str(files)+'个文件')
 
 def ALL():
     System32.mpv.mp3.music(path=os.path.dirname(System32.file.Self())+r'\volumes\Hi.mp3')
