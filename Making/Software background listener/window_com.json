@@ -1,6 +1,8 @@
 {
     "Main":{
-        "Title":"总控台"
+        "Title":"总控台", 
+        "resize_x":1000, 
+        "resize_y":600
     },
     "Error":{
         "title":"错误"
