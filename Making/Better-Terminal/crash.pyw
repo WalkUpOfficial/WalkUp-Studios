@@ -1,0 +1,1 @@
+from tkinter import messagebox;messagebox.showwarning('Error', f'此程序发生灾难性毁灭 ！')

@@ -1,0 +1,1 @@
+python -m nuitka --windows-console-mode=attach --windows-icon-from-ico=".ico" ".py"

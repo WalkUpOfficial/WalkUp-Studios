@@ -1,0 +1,84 @@
+{
+    "main_exit_time":35, 
+    "blesseser":{
+        "window_width": 250,
+        "window_height": 60,
+        "font_size": 14,
+        "interval_ms": 100,
+        "max_count": 75, 
+        "wait_for_exit":7
+    }, 
+    "MakeWish":{
+        "exit_time":5,
+        "exit_displays":"exit", 
+        "display":"one", 
+        "display_time":0.3, 
+        "distance":"400", 
+        "text":"许个愿吧",
+        "text_color":"pink", 
+        "text_zoom":269, 
+        "displays":{
+            "up_to_down_with_shake":{
+                "speed":1, 
+                "range":30
+            }, 
+            "down_to_up_with_zoom":{
+                "start_zoom":1, 
+                "zoom":10
+            }, 
+            "left_to_right":{
+                "speed":1
+            }, 
+            "right_to_down":{
+                "speed":1
+            }
+        }
+    }, 
+    "blesses": {
+        "zoom": 32,
+        "num": 140,
+        "during time": 0.001, 
+        "wait time of the exit":5
+    },
+    "plate": {
+        "wait times": {
+            "2": 0.15
+        },
+        "total xy": {
+            "x": "Auto",
+            "y": "Auto + 120"
+        },
+        "B": {
+            "num": 70,
+            "during time": 1
+        },
+        "C": {
+            "num": 40,
+            "during time": 1
+        },
+        "D": {
+            "num": 120,
+            "end": 40,
+            "start during time": 0.8,
+            "end during time": 0.8
+        }
+    },
+    "cake": {
+        "total xy": {
+            "x": "Auto",
+            "y": "Auto - 40"
+        },
+        "B": {
+            "num": 25,
+            "during time": 0.1
+        },
+        "C": {
+            "num": 12,
+            "during time": 0.1
+        }
+    },
+    "after": {
+        "plate": 1.05,
+        "cake": 0.8
+    }
+}

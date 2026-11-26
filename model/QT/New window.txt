@@ -1,0 +1,807 @@
+from PyQt6.QtWidgets import *
+import sys
+from PyQt6.QtCore import QTimer, QPoint, QRect, QSize, QEvent, Qt
+import System32
+import os
+from PyQt6.QtGui import QIcon, QPixmap, QPainter, QBrush, QColor, QPainterPath, QPen, QFont
+
+# ==================================================
+# ============== 【模块1】窗口基础配置 ==============
+# ==================================================
+win_icon_path = os.path.dirname(System32.file.Self()) + r'\icon\Windows Dynamic Island.png'
+win_default_title = "入门"
+win_default_w = 1000
+win_default_h = 700
+win_corner_radius = 15
+
+# ==================================================
+# ============== 【模块2】开屏生长动画 ==============
+# ==================================================
+enable_grow_size_anim = True
+enable_grow_fade_anim = True
+grow_step = 10
+grow_opacity_step = 0.01
+grow_timer_interval = 8
+
+# ==================================================
+# ============== 【模块3】标题栏图标动画 ==============
+# ==================================================
+title_icon_offset_x = 6
+title_icon_offset_y = 6
+enable_icon_shrink_anim = True
+enable_icon_fadein_anim = True
+icon_start_size = 640
+icon_target_size = 60
+icon_shrink_step = 12
+icon_fadein_step = 0.1
+icon_anim_interval = 2
+
+# ==================================================
+# ============== 【模块10】标题文字动画配置 ==============
+# ==================================================
+enable_title_anim = True
+title_gap_to_icon = 12
+title_offset_y = -10
+title_start_font_size = 120
+title_target_font_size = 20
+title_font_family = "Microsoft YaHei UI"
+title_default_color = QColor(40, 40, 40)
+title_shrink_step = 1
+title_fadein_step = 1
+title_delay_after_icon = 0.3
+
+# ==================================================
+# ============== 【模块4】标题栏按钮配置 ==============
+# ==================================================
+title_btn_w = 48
+title_btn_h = 48
+btn_icon_size = 10
+btn_line_width = 2
+btn_close_offset_x = 3
+btn_hover_speed = 0.05
+
+# ==================================================
+# ============== 【模块5】按钮颜色配置 ==============
+# ==================================================
+btn_min_hover_color = QColor(220, 220, 220)
+btn_max_hover_color = QColor(220, 220, 220)
+btn_close_hover_color = QColor(232, 17, 35)
+btn_icon_default_color = QColor(40, 40, 40)
+btn_icon_hover_color = QColor(255, 255, 255)
+
+# ==================================================
+# ============== 【模块6】最大化/还原动画 ==============
+# ==================================================
+anim_fps = 120
+enable_zoom_anim = True
+zoom_anim_duration = 0.2
+zoom_anim_step = 1.0 / (anim_fps * zoom_anim_duration)
+
+# ==================================================
+# ============== 【模块7】最小化动画 ==============
+# ==================================================
+enable_minimize_total = True
+enable_minimize_scale = True
+enable_minimize_fade = True
+mini_target_w = 200
+mini_target_h = 100
+mini_scale_duration = 0.5
+mini_fade_duration = 0.2
+mini_scale_step = 1.0 / (mini_scale_duration * anim_fps)
+mini_fade_step = 1.0 / (mini_fade_duration * anim_fps)
+
+# ==================================================
+# ============== 【模块8】任务栏恢复动画 ==============
+# ==================================================
+enable_restore_total = True
+enable_restore_fade = True
+enable_restore_scale = True
+restore_fade_duration = 0.18
+restore_scale_duration = 0.22
+restore_fade_step = 1.0 / (restore_fade_duration * anim_fps)
+restore_scale_step = 1.0 / (restore_scale_duration * anim_fps)
+
+# ==================================================
+# ============== 【模块9】退出动画 ==============
+# ==================================================
+enable_exit_total = True
+enable_exit_scale = True
+enable_exit_fade = True
+exit_anim_duration = 0.3
+exit_target_w = 400
+exit_target_h = 280
+exit_anim_step = 1.0 / (anim_fps * exit_anim_duration)
+
+drag_active = False
+drag_start_pos = QPoint()
+
+class window(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.on_window_start()
+        self.setWindowTitle(win_default_title)
+        
+        self.current_w = 0
+        self.current_h = 0
+        self.window_opacity = 0.0
+        self.setWindowOpacity(self.window_opacity)
+        
+        self.screen = QApplication.primaryScreen().availableGeometry()
+        self.center_x = self.screen.width() / 2
+        self.center_y = self.screen.height() / 2
+        
+        # 图标动态获取，不写死
+        if os.path.exists(win_icon_path):
+            self.setWindowIcon(QIcon(win_icon_path))
+        
+        self.icon_curr_w = icon_start_size
+        self.icon_curr_h = icon_start_size
+        self.icon_anim_running = False
+        self.draw_final_icon = False
+        self.icon_opacity = 0.0
+        self.icon_anim_timer = QTimer(self)
+        self.icon_anim_timer.setInterval(icon_anim_interval)
+        self.icon_anim_timer.timeout.connect(self.icon_shrink_tick)
+
+        # 标题动画状态
+        self.title_curr_font_size = title_target_font_size
+        self.title_opacity = 0.0
+        self.title_anim_running = False
+        self.title_wait_timer = QTimer(self)
+        self.title_wait_timer.setSingleShot(True)
+        self.title_wait_timer.timeout.connect(self._start_title_anim)
+        
+        self.is_maximized = False
+        self.normal_geo = None
+        
+        self.zoom_timer = QTimer(self)
+        self.zoom_timer.setInterval(int(1000 / anim_fps))
+        self.zoom_timer.timeout.connect(self._zoom_tick)
+        self.anim_src = QRect()
+        self.anim_dst = QRect()
+        self.anim_t = 0.0
+        self.is_animating = False
+        self.zoom_finish_callback = None
+        
+        self.mini_timer = QTimer(self)
+        self.mini_timer.setInterval(int(1000 / anim_fps))
+        self.mini_timer.timeout.connect(self._mini_tick)
+        self.is_minimize_anim = False
+        self.mini_phase = 0
+        self.mini_t = 0.0
+        self.mini_start_rect = None
+        self.mini_target_rect = None
+        
+        self.restore_timer = QTimer(self)
+        self.restore_timer.setInterval(int(1000 / anim_fps))
+        self.restore_timer.timeout.connect(self._restore_tick)
+        self.is_restore_anim = False
+        self.restore_phase = 0
+        self.restore_t = 0.0
+        self.restore_start_rect = None
+        self.restore_target_rect = None
+        
+        self.saved_normal_rect = None
+        self.was_maximized_before_minimize = False
+        
+        self.is_exit_anim = False
+        self.exit_t = 0.0
+        self.exit_start_rect = None
+        self.exit_target_rect = None
+        self.exit_timer = QTimer(self)
+        self.exit_timer.setInterval(int(1000 / anim_fps))
+        self.exit_timer.timeout.connect(self._exit_tick)
+        
+        self.hover_btn = 0
+        self.hover_t = {1: 0.0, 2: 0.0, 3: 0.0}
+        self.hover_anim_timer = QTimer(self)
+        self.hover_anim_timer.setInterval(16)
+        self.hover_anim_timer.timeout.connect(self._hover_anim_tick)
+        
+        self.setMouseTracking(True)
+        
+        if enable_grow_size_anim or enable_grow_fade_anim:
+            self.anim_timer = QTimer(self)
+            self.anim_timer.timeout.connect(self.grow_animate)
+            self.anim_timer.start(grow_timer_interval)
+        else:
+            self.current_w = win_default_w
+            self.current_h = win_default_h
+            self.window_opacity = 1.0
+            self.resize(win_default_w, win_default_h)
+            self.move(int(self.center_x - win_default_w/2), int(self.center_y - win_default_h/2))
+            self.setWindowOpacity(1.0)
+            if enable_icon_shrink_anim or enable_icon_fadein_anim:
+                self.icon_curr_w = icon_start_size
+                self.icon_curr_h = icon_start_size
+                self.icon_opacity = 0.0
+                self.draw_final_icon = False
+                self.icon_anim_running = True
+                self.icon_anim_timer.start()
+            else:
+                self.icon_curr_w = icon_target_size
+                self.icon_curr_h = icon_target_size
+                self.icon_opacity = 1.0
+                self.draw_final_icon = True
+                if enable_title_anim:
+                    self.title_wait_timer.start(int(title_delay_after_icon * 1000))
+                else:
+                    self.title_opacity = 1.0
+                    self.on_window_ready()
+            self.update()
+
+    def on_window_start(self):
+        pass
+
+    def on_window_ready(self):
+        pass
+
+    def on_window_exit(self):
+        pass
+
+    def _start_title_anim(self):
+        if not enable_title_anim:
+            self.title_opacity = 1.0
+            self.update()
+            self.on_window_ready()
+            return
+        self.title_curr_font_size = title_start_font_size
+        self.title_opacity = 0.0
+        self.title_anim_running = True
+        self.icon_anim_timer.start()
+
+    def start_exit_anim(self):
+        if self.is_exit_anim:
+            return
+        self.on_window_exit()
+        if not enable_exit_total:
+            self.setWindowOpacity(0.0)
+            QApplication.processEvents()
+            super().close()
+            return
+        self.is_exit_anim = True
+        self.exit_t = 0.0
+        self.exit_start_rect = self.geometry()
+        self.exit_target_rect = QRect(
+            int(self.center_x - exit_target_w/2),
+            int(self.center_y - exit_target_h/2),
+            exit_target_w, exit_target_h
+        )
+        self.exit_timer.start()
+
+    def _exit_tick(self):
+        self.exit_t += exit_anim_step
+        t = min(self.exit_t, 1.0)
+        if enable_exit_scale:
+            sx, sy = self.exit_start_rect.x(), self.exit_start_rect.y()
+            sw, sh = self.exit_start_rect.width(), self.exit_start_rect.height()
+            tx, ty = self.exit_target_rect.x(), self.exit_target_rect.y()
+            tw, th = self.exit_target_rect.width(), self.exit_target_rect.height()
+            nx = int(sx + (tx - sx) * t)
+            ny = int(sy + (ty - sy) * t)
+            nw = int(sw + (tw - sw) * t)
+            nh = int(sh + (th - sh) * t)
+            self.setGeometry(nx, ny, nw, nh)
+        if enable_exit_fade:
+            self.setWindowOpacity(1.0 - t)
+        self.update()
+        if t >= 1.0:
+            self.exit_timer.stop()
+            self.setWindowOpacity(0.0)
+            QApplication.processEvents()
+            self.close()
+
+    def closeEvent(self, event):
+        if self.is_exit_anim:
+            event.accept()
+            return
+        event.ignore()
+        self.start_exit_anim()
+
+    # 窗口标题/图标改动时自动重绘
+    def changeEvent(self, event):
+        if event.type() == QEvent.Type.WindowStateChange:
+            old_state = event.oldState()
+            new_state = self.windowState()
+            super().changeEvent(event)
+            if (old_state & Qt.WindowState.WindowMinimized) and not (new_state & Qt.WindowState.WindowMinimized):
+                if not self.is_minimize_anim and not self.is_restore_anim and not self.is_animating:
+                    self.start_restore_anim()
+        elif event.type() == QEvent.Type.WindowTitleChange:
+            self.update()
+        elif event.type() == QEvent.Type.WindowIconChange:
+            self.update()
+        super().changeEvent(event)
+
+    def setWindowTitle(self, title):
+        super().setWindowTitle(title)
+        self.update()
+
+    def setWindowIcon(self, icon):
+        super().setWindowIcon(icon)
+        self.update()
+
+    def _hover_anim_tick(self):
+        need_update = False
+        all_settled = True
+        for btn_id in [1,2,3]:
+            target = 1.0 if self.hover_btn == btn_id else 0.0
+            curr = self.hover_t[btn_id]
+            diff = target - curr
+            if abs(diff) > 0.01:
+                all_settled = False
+                step_size = min(abs(diff), btn_hover_speed)
+                self.hover_t[btn_id] += step_size * (1 if diff > 0 else -1)
+                need_update = True
+            else:
+                self.hover_t[btn_id] = target
+        if need_update:
+            self.update()
+        if all_settled:
+            self.hover_anim_timer.stop()
+
+    @staticmethod
+    def lerp_color(c1: QColor, c2: QColor, t: float) -> QColor:
+        return QColor(
+            int(c1.red() + (c2.red() - c1.red()) * t),
+            int(c1.green() + (c2.green() - c1.green()) * t),
+            int(c1.blue() + (c2.blue() - c1.blue()) * t),
+            int(c1.alpha() + (c2.alpha() - c1.alpha()) * t)
+        )
+
+    def _get_btn_rects(self):
+        w = self.width()
+        min_rect = QRect(w - title_btn_w*3, 0, title_btn_w, title_btn_h)
+        max_rect = QRect(w - title_btn_w*2, 0, title_btn_w, title_btn_h)
+        close_rect = QRect(w - title_btn_w + btn_close_offset_x, 0, title_btn_w, title_btn_h)
+        return min_rect, max_rect, close_rect
+
+    def start_zoom_anim(self, src: QRect, dst: QRect, finish_callback=None):
+        if self.is_animating:
+            return
+        if not enable_zoom_anim:
+            self.setGeometry(dst)
+            if callable(finish_callback):
+                finish_callback()
+            self.update()
+            return
+        self.is_animating = True
+        self.anim_src = src
+        self.anim_dst = dst
+        self.anim_t = 0.0
+        self.zoom_finish_callback = finish_callback
+        self.zoom_timer.start()
+
+    def _zoom_tick(self):
+        self.anim_t += zoom_anim_step
+        if self.anim_t >= 1.0:
+            self.anim_t = 1.0
+            self.setGeometry(self.anim_dst)
+            self.zoom_timer.stop()
+            self.is_animating = False
+            if callable(self.zoom_finish_callback):
+                self.zoom_finish_callback()
+                self.zoom_finish_callback = None
+            self.update()
+            return
+        t = self.anim_t
+        nx = int(self.anim_src.x() + (self.anim_dst.x() - self.anim_src.x()) * t)
+        ny = int(self.anim_src.y() + (self.anim_dst.y() - self.anim_src.y()) * t)
+        nw = int(self.anim_src.width() + (self.anim_dst.width() - self.anim_src.width()) * t)
+        nh = int(self.anim_src.height() + (self.anim_dst.height() - self.anim_src.height()) * t)
+        self.setGeometry(nx, ny, nw, nh)
+        self.update()
+
+    def start_minimize_anim(self):
+        if self.is_minimize_anim or self.is_restore_anim or self.is_animating:
+            return
+        self.saved_normal_rect = self.geometry()
+        if not enable_minimize_total:
+            self.setGeometry(self.saved_normal_rect)
+            self.showMinimized()
+            self.setWindowOpacity(1.0)
+            return
+        self.is_minimize_anim = True
+        self.mini_phase = 1
+        self.mini_t = 0.0
+        self.mini_start_rect = self.geometry()
+        sx = int(self.screen.center().x() - mini_target_w / 2)
+        sy = int(self.screen.bottom() - mini_target_h - 4)
+        self.mini_target_rect = QRect(sx, sy, mini_target_w, mini_target_h)
+        self.mini_timer.start()
+
+    def _mini_tick(self):
+        if self.mini_phase == 1:
+            self.mini_t += mini_scale_step
+            t = min(self.mini_t, 1.0)
+            if enable_minimize_scale:
+                sx, sy = self.mini_start_rect.x(), self.mini_start_rect.y()
+                sw, sh = self.mini_start_rect.width(), self.mini_start_rect.height()
+                tx, ty = self.mini_target_rect.x(), self.mini_target_rect.y()
+                tw, th = self.mini_target_rect.width(), self.mini_target_rect.height()
+                nx = int(sx + (tx - sx) * t)
+                ny = int(sy + (ty - sy) * t)
+                nw = int(sw + (tw - sw) * t)
+                nh = int(sh + (th - sh) * t)
+                self.setGeometry(nx, ny, nw, nh)
+            self.update()
+            if t >= 1.0:
+                self.mini_phase = 2
+                self.mini_t = 0.0
+        elif self.mini_phase == 2:
+            self.mini_t += mini_fade_step
+            t = min(self.mini_t, 1.0)
+            if enable_minimize_fade:
+                self.setWindowOpacity(1.0 - t)
+            self.update()
+            if t >= 1.0:
+                self.mini_timer.stop()
+                self.is_minimize_anim = False
+                self.mini_phase = 0
+                self.setGeometry(self.saved_normal_rect)
+                self.showMinimized()
+                self.setWindowOpacity(1.0)
+
+    def start_restore_anim(self):
+        if self.is_minimize_anim or self.is_restore_anim or self.is_animating:
+            return
+        if self.saved_normal_rect is None:
+            return
+        if not enable_restore_total:
+            self.setGeometry(self.saved_normal_rect)
+            self.setWindowOpacity(1.0)
+            if self.was_maximized_before_minimize:
+                self.setGeometry(self.screen)
+                self.is_maximized = True
+            self.was_maximized_before_minimize = False
+            self.update()
+            return
+        self.is_restore_anim = True
+        self.restore_phase = 1
+        self.restore_t = 0.0
+        self.restore_start_rect = QRect(
+            int(self.screen.center().x() - mini_target_w / 2),
+            int(self.screen.bottom() - mini_target_h - 4),
+            mini_target_w, mini_target_h
+        )
+        self.restore_target_rect = self.saved_normal_rect
+        self.setGeometry(self.restore_start_rect)
+        self.setWindowOpacity(0.0)
+        self.show()
+        self.restore_timer.start()
+
+    def _restore_tick(self):
+        if self.restore_phase == 1:
+            self.restore_t += restore_fade_step
+            t = min(self.restore_t, 1.0)
+            if enable_restore_fade:
+                self.setWindowOpacity(t)
+            self.update()
+            if t >= 1.0:
+                self.restore_phase = 2
+                self.restore_t = 0.0
+        elif self.restore_phase == 2:
+            self.restore_t += restore_scale_step
+            t = min(self.restore_t, 1.0)
+            if enable_restore_scale:
+                sx, sy = self.restore_start_rect.x(), self.restore_start_rect.y()
+                sw, sh = self.restore_start_rect.width(), self.restore_start_rect.height()
+                tx, ty = self.restore_target_rect.x(), self.restore_target_rect.y()
+                tw, th = self.restore_target_rect.width(), self.restore_target_rect.height()
+                nx = int(sx + (tx - sx) * t)
+                ny = int(sy + (ty - sy) * t)
+                nw = int(sw + (tw - sw) * t)
+                nh = int(sh + (th - sh) * t)
+                self.setGeometry(nx, ny, nw, nh)
+            self.update()
+            if t >= 1.0:
+                self.restore_timer.stop()
+                self.is_restore_anim = False
+                self.restore_phase = 0
+                self.setWindowOpacity(1.0)
+                if self.was_maximized_before_minimize:
+                    self.normal_geo = self.geometry()
+                    self.is_maximized = False
+                    self.start_zoom_anim(self.geometry(), self.screen)
+                    self.is_maximized = True
+                self.was_maximized_before_minimize = False
+
+    def grow_animate(self):
+        step = grow_step
+        opacity_step = grow_opacity_step
+        if self.current_w < win_default_w and enable_grow_size_anim:
+            self.current_w += step
+        if self.current_h < win_default_h and enable_grow_size_anim:
+            self.current_h += step
+        if self.window_opacity < 1.0 and enable_grow_fade_anim:
+            self.window_opacity += opacity_step
+            if self.window_opacity > 1.0:
+                self.window_opacity = 1.0
+            self.setWindowOpacity(self.window_opacity)
+        if self.current_w > win_default_w:
+            self.current_w = win_default_w
+        if self.current_h > win_default_h:
+            self.current_h = win_default_h
+        if not enable_grow_size_anim:
+            self.current_w = win_default_w
+            self.current_h = win_default_h
+        if not enable_grow_fade_anim:
+            self.window_opacity = 1.0
+            self.setWindowOpacity(1.0)
+        self.resize(self.current_w, self.current_h)
+        new_x = int(self.center_x - self.current_w / 2)
+        new_y = int(self.center_y - self.current_h / 2)
+        self.move(new_x, new_y)
+        if self.current_w == win_default_w and self.current_h == win_default_h and self.window_opacity >= 1.0:
+            self.anim_timer.stop()
+            if enable_icon_shrink_anim or enable_icon_fadein_anim:
+                self.icon_curr_w = icon_start_size
+                self.icon_curr_h = icon_start_size
+                self.icon_opacity = 0.0
+                self.draw_final_icon = False
+                self.icon_anim_running = True
+                self.icon_anim_timer.start()
+            else:
+                self.icon_curr_w = icon_target_size
+                self.icon_curr_h = icon_target_size
+                self.icon_opacity = 1.0
+                self.draw_final_icon = True
+                if enable_title_anim:
+                    self.title_wait_timer.start(int(title_delay_after_icon * 1000))
+                else:
+                    self.title_opacity = 1.0
+                    self.on_window_ready()
+            self.update()
+
+    def icon_shrink_tick(self):
+        icon_done = False
+        if self.icon_opacity < 1.0 and enable_icon_fadein_anim:
+            self.icon_opacity += icon_fadein_step
+            if self.icon_opacity > 1.0:
+                self.icon_opacity = 1.0
+        if enable_icon_shrink_anim:
+            self.icon_curr_w -= icon_shrink_step
+            self.icon_curr_h -= icon_shrink_step
+        if not enable_icon_shrink_anim:
+            self.icon_curr_w = icon_target_size
+            self.icon_curr_h = icon_target_size
+        if not enable_icon_fadein_anim:
+            self.icon_opacity = 1.0
+        if self.icon_curr_w <= icon_target_size:
+            self.icon_curr_w = icon_target_size
+        if self.icon_curr_h <= icon_target_size:
+            self.icon_curr_h = icon_target_size
+
+        if (self.icon_curr_w <= icon_target_size
+                and self.icon_curr_h <= icon_target_size
+                and self.icon_opacity >= 1.0):
+            icon_done = True
+
+        title_done = False
+        if self.title_anim_running:
+            if self.title_opacity < 1.0:
+                self.title_opacity += title_fadein_step
+                if self.title_opacity > 1.0:
+                    self.title_opacity = 1.0
+            if self.title_curr_font_size > title_target_font_size:
+                self.title_curr_font_size -= title_shrink_step
+                if self.title_curr_font_size < title_target_font_size:
+                    self.title_curr_font_size = title_target_font_size
+            if self.title_curr_font_size <= title_target_font_size and self.title_opacity >= 1.0:
+                title_done = True
+
+        if icon_done and not self.title_anim_running and not title_done:
+            self.icon_anim_running = False
+            self.draw_final_icon = True
+            self.icon_anim_timer.stop()
+            if enable_title_anim:
+                self.title_wait_timer.start(int(title_delay_after_icon * 1000))
+            else:
+                self.title_opacity = 1.0
+                self.update()
+                self.on_window_ready()
+        elif icon_done and title_done:
+            self.icon_anim_timer.stop()
+            self.icon_anim_running = False
+            self.title_anim_running = False
+            self.draw_final_icon = True
+            self.update()
+            self.on_window_ready()
+        self.update()
+
+    def mouseMoveEvent(self, event):
+        global drag_active, drag_start_pos
+        min_rect, max_rect, close_rect = self._get_btn_rects()
+        pos = event.position()
+        old_hover = self.hover_btn
+        self.hover_btn = 0
+        if close_rect.contains(pos.toPoint()):
+            self.hover_btn = 3
+        elif max_rect.contains(pos.toPoint()):
+            self.hover_btn = 2
+        elif min_rect.contains(pos.toPoint()):
+            self.hover_btn = 1
+        if old_hover != self.hover_btn:
+            self.hover_anim_timer.start(16)
+        if drag_active and event.buttons() & Qt.MouseButton.LeftButton:
+            if not self.is_maximized and not self.is_animating and not self.is_minimize_anim and not self.is_restore_anim:
+                self.move(event.globalPosition().toPoint() - drag_start_pos)
+        event.accept()
+
+    def leaveEvent(self, event):
+        self.hover_btn = 0
+        self.hover_anim_timer.start(16)
+        super().leaveEvent(event)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QBrush(QColor(255,255,255,255)))
+        
+        allow_round = False
+        if self.is_animating and self.is_maximized and self.normal_geo is not None:
+            cr = self.geometry()
+            if cr.width() <= self.normal_geo.width() + 2 and cr.height() <= self.normal_geo.height() + 2:
+                allow_round = True
+        elif not self.is_animating and not self.is_maximized:
+            allow_round = True
+        if allow_round:
+            painter.drawRoundedRect(self.rect(), win_corner_radius, win_corner_radius)
+        else:
+            painter.drawRect(self.rect())
+
+        current_title = self.windowTitle()
+        current_icon = self.windowIcon()
+        if not current_icon.isNull():
+            icon_pix = current_icon.pixmap(icon_start_size, icon_start_size)
+        else:
+            icon_pix = QPixmap()
+
+        # 先画图标
+        if self.icon_anim_running or self.draw_final_icon:
+            if not icon_pix.isNull():
+                scaled_pix = icon_pix.scaled(
+                    self.icon_curr_w, self.icon_curr_h,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation
+                )
+                icon_draw_x = title_icon_offset_x
+                icon_draw_y = title_icon_offset_y
+                painter.setOpacity(self.icon_opacity)
+                painter.drawPixmap(icon_draw_x, icon_draw_y, scaled_pix)
+
+                # 再画动态标题
+                title_x = icon_draw_x + self.icon_curr_w + title_gap_to_icon
+                icon_center_y = icon_draw_y + self.icon_curr_w / 2
+                font_size = self.title_curr_font_size if self.title_anim_running else title_target_font_size
+                font = QFont(title_font_family, font_size)
+                painter.setFont(font)
+                fm = painter.fontMetrics()
+                text_h = fm.boundingRect(current_title).height()
+                title_y = int(icon_center_y + text_h / 2) + title_offset_y
+                painter.setPen(title_default_color)
+                painter.setOpacity(self.title_opacity)
+                painter.drawText(title_x, title_y, current_title)
+                painter.setOpacity(1.0)
+        
+        min_rect, max_rect, close_rect = self._get_btn_rects()
+        painter.setPen(Qt.PenStyle.NoPen)
+        t1 = self.hover_t[1]
+        bg_color_1 = self.lerp_color(QColor(0,0,0,0), btn_min_hover_color, t1)
+        painter.setBrush(QBrush(bg_color_1))
+        painter.drawRect(min_rect)
+        t2 = self.hover_t[2]
+        bg_color_2 = self.lerp_color(QColor(0,0,0,0), btn_max_hover_color, t2)
+        painter.setBrush(QBrush(bg_color_2))
+        painter.drawRect(max_rect)
+        t3 = self.hover_t[3]
+        bg_color_3 = self.lerp_color(QColor(0,0,0,0), btn_close_hover_color, t3)
+        if allow_round:
+            path = QPainterPath()
+            r = win_corner_radius
+            path.moveTo(close_rect.left(), close_rect.top())
+            path.lineTo(close_rect.right() - r, close_rect.top())
+            path.quadTo(close_rect.right(), close_rect.top(), close_rect.right(), close_rect.top() + r)
+            path.lineTo(close_rect.right(), close_rect.bottom())
+            path.lineTo(close_rect.left(), close_rect.bottom())
+            path.closeSubpath()
+            painter.fillPath(path, QBrush(bg_color_3))
+        else:
+            painter.setBrush(QBrush(bg_color_3))
+            painter.drawRect(close_rect)
+
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+
+        half = btn_icon_size // 2
+        pen_c1 = self.lerp_color(btn_icon_default_color, btn_icon_hover_color, t1)
+        pen1 = QPen(pen_c1)
+        pen1.setWidth(int(btn_line_width))
+        painter.setPen(pen1)
+        cx, cy = min_rect.center().x(), min_rect.center().y()
+        painter.drawLine(cx - half, cy, cx + half, cy)
+
+        pen_c2 = self.lerp_color(btn_icon_default_color, btn_icon_hover_color, t2)
+        pen2 = QPen(pen_c2)
+        pen2.setWidth(int(btn_line_width))
+        painter.setPen(pen2)
+        cx, cy = max_rect.center().x(), max_rect.center().y()
+        if not self.is_maximized:
+            painter.drawRect(QRect(cx - half, cy - half, btn_icon_size, btn_icon_size))
+        else:
+            painter.drawLine(cx - half + 2, cy - half - 2, cx + half + 2, cy - half - 2)
+            painter.drawLine(cx + half + 2, cy - half - 2, cx + half + 2, cy - half + 8)
+            painter.drawLine(cx - half, cy - half + 2, cx - half + 2, cy - half + 2)
+            painter.drawLine(cx - half, cy - half + 2, cx - half, cy + half + 2)
+            painter.drawLine(cx - half, cy + half + 2, cx + half - 2, cy + half + 2)
+            painter.drawLine(cx + half - 2, cy - half + 2, cx + half - 2, cy + half + 2)
+
+        pen_c3 = self.lerp_color(btn_icon_default_color, btn_icon_hover_color, t3)
+        pen3 = QPen(pen_c3)
+        pen3.setWidth(int(btn_line_width))
+        painter.setPen(pen3)
+        cx, cy = close_rect.center().x(), close_rect.center().y()
+        painter.drawLine(cx - half, cy - half, cx + half, cy + half)
+        painter.drawLine(cx + half, cy - half, cx - half, cy + half)
+
+    def mousePressEvent(self, event):
+        global drag_active, drag_start_pos
+        min_rect, max_rect, close_rect = self._get_btn_rects()
+        pt = event.position().toPoint()
+        
+        if close_rect.contains(pt):
+            self.close()
+            event.accept()
+            return
+        if max_rect.contains(pt):
+            if self.is_animating or self.is_minimize_anim or self.is_restore_anim:
+                event.accept()
+                return
+            if not self.is_maximized:
+                self.normal_geo = self.geometry()
+                self.start_zoom_anim(self.geometry(), self.screen)
+                self.is_maximized = True
+            else:
+                self.start_zoom_anim(self.geometry(), self.normal_geo)
+                self.is_maximized = False
+            event.accept()
+            return
+        if min_rect.contains(pt):
+            if self.is_animating or self.is_minimize_anim or self.is_restore_anim:
+                event.accept()
+                return
+            if self.is_maximized:
+                self.was_maximized_before_minimize = True
+                def after_restore():
+                    self.is_maximized = False
+                    self.start_minimize_anim()
+                self.start_zoom_anim(self.geometry(), self.normal_geo, finish_callback=after_restore)
+            else:
+                self.was_maximized_before_minimize = False
+                self.start_minimize_anim()
+            event.accept()
+            return
+        if event.button() == Qt.MouseButton.LeftButton:
+            if event.position().y() <= title_btn_h and not self.is_maximized and not self.is_animating and not self.is_minimize_anim and not self.is_restore_anim:
+                drag_active = True
+                drag_start_pos = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+                event.accept()
+
+    def mouseReleaseEvent(self, event):
+        global drag_active, drag_start_pos
+        if event.button() == Qt.MouseButton.LeftButton:
+            drag_active = False
+            event.accept()
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    root = window()
+    root.setWindowTitle("入门")
+    if os.path.exists(win_icon_path): root.setWindowIcon(QIcon(win_icon_path))
+    root.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+    root.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+    root.show()
+    
+    
+    
+    sys.exit(app.exec())

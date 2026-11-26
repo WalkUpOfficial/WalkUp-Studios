@@ -1,0 +1,8 @@
+{
+    "code-runner.runInTerminal": false,
+    "code-runner.executorMap": {
+        "cpp": "cd $dir && g++ $fileName -o $fileNameWithoutExt -finput-charset=UTF-8 -fexec-charset=UTF-8 && start cmd /k $fileNameWithoutExt"
+    },
+    "files.encoding": "utf8",
+    "git.path": "C:\\ProgramData\\Git\\cmd\\git.exe"
+}

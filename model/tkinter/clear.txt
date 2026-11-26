@@ -1,0 +1,4 @@
+def clear():
+	self.c.delete("all")
+	for widget in self.root.winfo_children():
+		widget.destroy()
